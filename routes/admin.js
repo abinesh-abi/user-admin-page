@@ -2,8 +2,10 @@ const router = require("express").Router();
 const { ObjectId } = require("mongodb");
 const app = require("../app.js");
 const { connect } = require("../database/connection.js");
+const bcrypt = require('bcrypt');
 
 router.get("/", (req, res) => {
+    res.setHeader("cache-control", "private,no-cache,no-store,must-revalidate");
   if (req.session.admin) {
   connect(async (db, client) => {
     let dbUsers = await db.collection("user").find().toArray();
@@ -22,6 +24,7 @@ router.get("/", (req, res) => {
 });
 
 router.get("/login", (req, res) => {
+    res.setHeader("cache-control", "private,no-cache,no-store,must-revalidate");
   res.render("adminlogin", {
     emailErr: "",
     passwordErr: "",
@@ -53,6 +56,40 @@ router.post("/login", (req, res) => {
         passwordErr: "",
         email: body.email,
       });
+    }
+    client.close();
+  });
+});
+
+router.get("/create", (req, res) => {
+      res.render("createUser", {
+        name: '',
+        emailErr: "",
+        email: '',
+      });
+});
+
+router.post("/create", (req, res) => {
+  console.log('create user post page');
+  let { body } = req;
+
+  connect(async (db, client) => {
+    let dbUser = await db.collection("user").findOne({ email: body.email });
+    if (dbUser) {
+      res.render("createUser", {
+        name: body.name,
+        emailErr: "this email is already in use",
+        email: dbUser.email,
+      });
+    } else {
+      let hashedPassword = bcrypt.hashSync(body.password,10)
+      // console.log(hashedPassword);
+      let{name,email}=body
+      await db.collection("user").insertOne({name,email,password:hashedPassword});
+      let dbname = await db.collection("user").findOne({email: body.email})
+      // console.log(dbname);
+      // req.session.user = dbname.name;
+      res.redirect("/admin")
     }
     client.close();
   });
@@ -121,4 +158,15 @@ router.get("/check/:id", (req, res) => {
     }
   });
 });
+
+router.get("/logout", (req, res) => {
+  try {
+    res.setHeader("cache-control", "private,no-cache,no-store,must-revalidate");
+    req.session.destroy();
+    res.redirect("/admin");
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 module.exports = router;

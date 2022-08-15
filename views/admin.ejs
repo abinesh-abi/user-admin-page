@@ -21,6 +21,17 @@
       <h1 class="display-1">Admin Page</h1>
       <h1 class="display-4">Welcome  <%= name%></h1>
 
+              <a
+                href="http://127.0.0.1:3000/admin/logout"
+                class="btn btn-info mb-2 bt-2"
+                >Logout</a
+              >
+              <br>
+              <a
+                href="http://127.0.0.1:3000/admin/create"
+                class="btn btn-success mb-2"
+                >Create</a>
+
       <div class="input-group rounded">
         <input
           type="search"
@@ -100,13 +111,12 @@
             <td> ${element.name}</td>
             <td> ${element.email} </td>
             <td>
+              
               <a
                 href="http://127.0.0.1:3000/admin/edit/${element._id}"
                 class="btn btn-success"
                 >Edit</a
               >
-            </td>
-            <td>
               <a
                 onclick="deleteUser('${element.email}','${element.name}')"
                 class="btn btn-danger "
