@@ -10,9 +10,14 @@
       integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx"
       crossorigin="anonymous"
     />
+    <style>
+      .width{
+        max-width: 850px;
+      }
+    </style>
   </head>
   <body>
-    <div class="container text-center">
+    <div class="container text-center width">
       <h1 class="display-1">Admin Page</h1>
       <h1 class="display-4">Welcome  <%= name%></h1>
 
@@ -23,13 +28,13 @@
           onkeyup="check()"
           onkeydown="check()"
           class="form-control rounded"
-          placeholder="Search"
+          placeholder="Search By Email"
           aria-label="Search"
           aria-describedby="search-addon"
         />
-        <span class="input-group-text border-0 bg-primary" id="search-addon">
+        <!-- <span class="input-group-text border-0 bg-primary" id="search-addon">
           <b class="">Search</b>
-        </span>
+        </span> -->
       </div>
       <h1 id="hi"></h1>
 
@@ -42,7 +47,7 @@
           </tr>
         </thead>
         <tbody id="tableBody">
-          <% dbUsers.forEach((element,i)=>{%>
+          <!-- <% dbUsers.forEach((element,i)=>{%>
           <tr>
             <th scope="row"><%= i+1 %></th>
             <td><%= element.name %></td>
@@ -60,10 +65,9 @@
                 class="btn btn-danger delete-btn"
                 >Delete</a
               >
-                <!-- onclick="deleteUser(element.email,element.name)" -->
             </td>
           </tr>
-          <%}) %>
+          <%}) %> -->
         </tbody>
       </table>
     </div>
@@ -71,7 +75,7 @@
     <!-- JavaScript Bundle with Popper -->
 
     <script>
-
+      window.addEventListener("load", check)
 
       function check() {
         let inp = document.getElementById("search").value;
@@ -104,7 +108,7 @@
             </td>
             <td>
               <a
-                onclick='delete-user(${element.email},${element.name})'
+                onclick="deleteUser('${element.email}','${element.name}')"
                 class="btn btn-danger "
                 >Delete</a
               >
@@ -128,9 +132,8 @@
           method: "GET",
         })
        }
+       check()
       }
-
-
           </script>
 
     <script

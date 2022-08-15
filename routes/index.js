@@ -1,6 +1,7 @@
 const { json } = require("express");
 var express = require("express");
 var router = express.Router();
+const bcript = require("bcrypt")
 const { connect } = require("../database/connection.js");
 
 // GET home page.
@@ -36,9 +37,12 @@ router.post("/signup", (req, res) => {
         email: dbUser.email,
       });
     } else {
-      console.log(body);
-      await db.collection("user").insertOne(body);
+      let hashedPassword = bcript.hashSync(body.password,10)
+      console.log(hashedPassword);
+      let{name,email}=body
+      await db.collection("user").insertOne({name,email,password:hashedPassword});
       let dbname = await db.collection("user").findOne({email: body.email})
+      console.log(dbname);
       req.session.user = dbname.name;
       res.render("index", { name: req.session.user });
     }
@@ -59,7 +63,9 @@ router.post("/login", (req, res) => {
   connect(async (db, client) => {
     let dbUser = await db.collection("user").findOne({ email: body.email });
     if (dbUser) {
-      if (body.email === dbUser.email && body.password == dbUser.password) {
+      let passwordMatch = bcript.compareSync(body.password, dbUser.password)
+      console.log(passwordMatch);
+      if (body.email === dbUser.email && passwordMatch ) {
         req.session.user = dbUser.name;
         res.redirect("/");
       }  else if (body.password != dbUser.password) {

@@ -106,7 +106,7 @@ router.get("/check/:id", (req, res) => {
   connect(async (db, client) => {
     let data = await db
       .collection("user")
-      .find({ email: { $regex: req.params.id } })
+      .find({ email: { $regex: `^${req.params.id}` } })
       // .find({ email:/^req.params.id/ })
       .toArray();
 
