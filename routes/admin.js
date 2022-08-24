@@ -25,17 +25,20 @@ router.get("/", (req, res) => {
 
 router.get("/login", (req, res) => {
     res.setHeader("cache-control", "private,no-cache,no-store,must-revalidate");
+    if (req.session.admin) {
+     res.redirect('/admin'); 
+    }else{
   res.render("adminlogin", {
     emailErr: "",
     passwordErr: "",
     email: "",
   });
+    }
 });
 
 router.post("/login", (req, res) => {
   res.setHeader("cache-control", "private,no-cache,no-store,must-revalidate");
   let { body } = req;
-
   connect(async (db, client) => {
     let dbAdmin = await db.collection("admin").findOne({ email: body.email });
     if (dbAdmin) {
@@ -70,7 +73,6 @@ router.get("/create", (req, res) => {
 });
 
 router.post("/create", (req, res) => {
-  console.log('create user post page');
   let { body } = req;
 
   connect(async (db, client) => {

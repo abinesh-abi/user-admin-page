@@ -28,6 +28,7 @@ router.post("/signup", (req, res) => {
   res.setHeader("cache-control", "private,no-cache,no-store,must-revalidate");
   let { body } = req;
 
+
   connect(async (db, client) => {
     let dbUser = await db.collection("user").findOne({ email: body.email });
     if (dbUser) {
@@ -37,14 +38,29 @@ router.post("/signup", (req, res) => {
         email: dbUser.email,
       });
     } else {
+      atpos = body.email.indexOf("@");
+      dotpos = body.email.lastIndexOf(".");
+      if( body.name.trim().length==0 ) {
+        res.render("signup", {
+          name: body.name,
+          emailErr: "Enter valied Name",
+          email: req.body.email,
+        });
+     }
+      else if (atpos < 1 || ( dotpos - atpos < 2 )) {
+        res.render("signup", {
+          name: body.name,
+          emailErr: "enter valied email",
+          email: req.body.email,
+        });
+
+     }else{
       let hashedPassword = bcript.hashSync(body.password,10)
-      console.log(hashedPassword);
       let{name,email}=body
       await db.collection("user").insertOne({name,email,password:hashedPassword});
       let dbname = await db.collection("user").findOne({email: body.email})
-      console.log(dbname);
       req.session.user = dbname.name;
-      res.render("index", { name: req.session.user });
+      res.render("index", { name: req.session.user });}
     }
     client.close();
   });
@@ -53,7 +69,11 @@ router.post("/signup", (req, res) => {
 //login user
 router.get("/login", (req, res) => {
   res.setHeader("cache-control", "private,no-cache,no-store,must-revalidate");
+  if (req.session.user) {
+    res.redirect('/')
+  }else{
   res.render("login", { emaillErr: "", passwordErr: "", email: "" });
+  }
 });
 
 router.post("/login", (req, res) => {
